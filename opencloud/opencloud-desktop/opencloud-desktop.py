@@ -21,12 +21,13 @@ class subinfo(info.infoclass):
         self.options.dynamic.registerOption("buildBeta", False)
 
     def setTargets(self):
-        self.svnTargets["main"] = "https://github.com/opencloud-eu/desktop.git|main"
+        # Modified by ChaeumAI Inc. on 2026-11-16: Chaeum Drive build (name, company, theme).
+        self.svnTargets["main"] = "https://github.com/ceo-chaeum-ai/desktop.git|chaeum"
         self.defaultTarget = "main"
 
-        self.description = "OpenCloud Desktop"
-        self.displayName = "OpenCloud Beta" if self.options.dynamic.buildBeta else "OpenCloud"
-        self.webpage = "https://github.com/opencloud-eu/desktop"
+        self.description = "Chaeum Drive (based on OpenCloud Desktop)"
+        self.displayName = "채움드라이브"
+        self.webpage = "https://github.com/ceo-chaeum-ai/desktop"
 
     def setDependencies(self):
         self.buildDependencies["craft/craft-blueprints-opencloud"] = None
@@ -62,8 +63,8 @@ class subinfo(info.infoclass):
             self.buildDependencies["dev-utils/breakpad"] = None
             self.buildDependencies["dev-utils/symsorter"] = None
 
-        if self.options.dynamic.buildBeta:
-            self.buildDependencies["python-modules/pillow"] = None
+        # the Chaeum theme is always applied (admin/theme_patcher.py needs pillow)
+        self.buildDependencies["python-modules/pillow"] = None
 
 
 from Package.CMakePackageBase import *
@@ -90,7 +91,7 @@ class Package(CMakePackageBase):
 
     @property
     def applicationExecutable(self):
-        return "opencloud_beta" if self.subinfo.options.dynamic.buildBeta else "opencloud"
+        return "chaeumdrive"
 
     def buildNumber(self):
         if self.subinfo.options.dynamic.buildNumber:
@@ -198,11 +199,11 @@ class Package(CMakePackageBase):
 
     def createPackage(self):
         self.blacklist_file.append(os.path.join(self.blueprintDir(), "blacklist.txt"))
-        self.defines["appname"] = "OpenCloud" if not self.subinfo.options.dynamic.buildBeta else "OpenCloud Beta"
+        self.defines["appname"] = "ChaeumDrive"
         self.defines["desktopFile"] = self.applicationExecutable
         self.defines["appimage_native_package_name"] = f'{self.applicationExecutable.lower().replace("_", "-")}-desktop'
         self.defines["apppath"] = "Applications/KDE/" + self.defines["appname"] + ".app"
-        self.defines["company"] = "OpenCloud GmbH"
+        self.defines["company"] = "ChaeumAI Inc."
 
         exePath = Path(f"{self.applicationExecutable}{CraftCore.compiler.platform.executableSuffix}")
         if isinstance(self, (NullsoftInstallerPackager, AppxPackager)):
@@ -212,7 +213,7 @@ class Package(CMakePackageBase):
                 "name": self.subinfo.displayName,
                 "target": str(exePath),
                 "description": self.subinfo.description,
-                "appId": "eu.opencloud.desktopclient",
+                "appId": "com.chaeumai.drive",
             }
         ]
         self.defines["icon"] = self.buildDir() / "src/gui/opencloud.ico"
@@ -279,7 +280,7 @@ class Package(CMakePackageBase):
         return super().preArchiveMove()
 
     def preArchive(self):
-        if self.subinfo.options.dynamic.buildBeta:
-            if not utils.system(["python3", self.sourceDir() / "admin/theme_patcher.py", self.archiveDir(), self.sourceDir() / "beta.json"]):
-                return False
+        theme = "beta.json" if self.subinfo.options.dynamic.buildBeta else "chaeum.json"
+        if not utils.system(["python3", self.sourceDir() / "admin/theme_patcher.py", self.archiveDir(), self.sourceDir() / theme]):
+            return False
         return super().preArchive()
