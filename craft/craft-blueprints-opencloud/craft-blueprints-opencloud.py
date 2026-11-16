@@ -3,9 +3,10 @@ import info
 
 class subinfo(info.infoclass):
     def setTargets(self):
-        for ver in ["main"]:
-            self.svnTargets[ver] = f"[git]https://github.com/opencloud-eu/craft-blueprints-opencloud.git|{ver}|"
-        self.defaultTarget = "main"
+        # Modified by ChaeumAI Inc. on 2026-11-16: blueprints come from the Chaeum Drive fork.
+        for ver in ["main", "chaeum"]:
+            self.svnTargets[ver] = "[git]https://github.com/ceo-chaeum-ai/craft-blueprints-opencloud.git|chaeum|"
+        self.defaultTarget = "chaeum"
 
     def setDependencies(self):
         self.buildDependencies["craft/craft-core"] = "default"
