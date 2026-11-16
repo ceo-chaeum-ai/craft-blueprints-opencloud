@@ -197,7 +197,22 @@ class Package(CMakePackageBase):
         version_str = get_var("MIRALL_VERSION_STRING")
         return version_str
 
+    def _unicodeNsisScript(self):
+        # Modified by ChaeumAI Inc. on 2026-11-16: Craft's NSIS template has no "Unicode true",
+        # so the Korean product name was shown as mojibake and broke the uninstaller's PowerShell quoting.
+        # Use a copy of the template saved as UTF-8 with BOM and "Unicode true" on top.
+        import Packager.NullsoftInstallerPackager as nsisModule
+        template = Path(nsisModule.__file__).parent / "Nsis/NullsoftInstaller.nsi"
+        dest = Path(self.workDir()) / "chaeum-unicode-installer.nsi"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        text = template.read_text(encoding="utf-8").lstrip("\ufeff")
+        dest.write_text("\ufeffUnicode true\n" + text, encoding="utf-8")
+        self.defines["nsis_include"] = f"!addincludedir {template.parent}"
+        return dest
+
     def createPackage(self):
+        if isinstance(self, NullsoftInstallerPackager):
+            self.scriptname = self._unicodeNsisScript()
         self.blacklist_file.append(os.path.join(self.blueprintDir(), "blacklist.txt"))
         self.defines["appname"] = "ChaeumDrive"
         self.defines["desktopFile"] = self.applicationExecutable
