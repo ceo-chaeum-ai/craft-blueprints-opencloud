@@ -210,6 +210,21 @@ class Package(CMakePackageBase):
         self.defines["nsis_include"] = f"!addincludedir {template.parent}"
         return dest
 
+    def _appxKoreanResource(self):
+        # Modified by ChaeumAI Inc. on 2026-11-18: Craft's AppxManifest.xml declares only en-us.
+        # Chaeum Drive is a Korean app, so declare ko-kr first (the package's default language) and keep en-us.
+        # This edits the template of the Craft checkout on the CI runner only.
+        import Packager.AppxPackager as appxModule
+        manifest = Path(appxModule.__file__).parent / "AppxManifest.xml"
+        text = manifest.read_text(encoding="utf-8")
+        if 'Language="ko-kr"' not in text:
+            old = '<Resource Language="en-us" />'
+            if old not in text:
+                CraftCore.log.error(f"{manifest}: {old} not found")
+                return False
+            manifest.write_text(text.replace(old, '<Resource Language="ko-kr" />\n    ' + old), encoding="utf-8")
+        return True
+
     def createPackage(self):
         if isinstance(self, NullsoftInstallerPackager):
             self.scriptname = self._unicodeNsisScript()
@@ -241,6 +256,14 @@ class Package(CMakePackageBase):
                 # The Microsoft Store requires a version number in the format of X.Y.0.0
                 # so we skip the suffix
                 self.defines["version"] = self.openCloudVersion(False)
+                # Modified by ChaeumAI Inc. on 2026-11-18: Microsoft Store identity reserved in Partner Center
+                # (Store ID 9NPF2R9QVF8S). The publisher id is Packager/AppxPublisherId in desktop/.craft.ini.
+                # PublisherDisplayName must match the Partner Center publisher display name exactly.
+                self.defines["company"] = "(주)채움AI"
+                self.defines["name"] = "ChaeumDrive"
+                self.defines["appx_identity_name"] = "5A19792A.13685198CDF50"
+                if not self._appxKoreanResource():
+                    return False
                 self.defines["icon_png_44"] = self.archiveDir() / "OpenCloudAssets/44-opencloud-icon-ms.png"
                 self.defines["icon_png"] = self.archiveDir() / "OpenCloudAssets/150-opencloud-icon-ms.png"
                 # this one would also require us to set a 310x150 icon
@@ -271,7 +294,7 @@ class Package(CMakePackageBase):
 </desktop3:Extension>
 <com:Extension Category="windows.comServer">
   <com:ComServer>
-    <com:SurrogateServer DisplayName="OpenCloud Explorer integration">
+    <com:SurrogateServer DisplayName="ChaeumDrive Explorer integration">
       <com:Class Id="{explorerCommandClsid}" Path="bin\\OpenCloudExplorerCommand.dll" ThreadingModel="STA" />
     </com:SurrogateServer>
   </com:ComServer>
