@@ -200,15 +200,15 @@ class Package(CMakePackageBase):
     def _unicodeNsisScript(self):
         # Modified by ChaeumAI Inc. on 2026-11-16: Craft's NSIS template has no "Unicode true",
         # so the Korean product name was shown as mojibake and broke the uninstaller's PowerShell quoting.
-        # Use a copy of the template saved as UTF-8 with BOM and "Unicode true" on top.
+        # 2026-11-18: use our own Korean template next to this blueprint (chaeum-installer.nsi, made from Craft's template)
+        # with side and header images and a Korean copy of process.nsh (chaeum-process.nsh).
         import Packager.NullsoftInstallerPackager as nsisModule
-        template = Path(nsisModule.__file__).parent / "Nsis/NullsoftInstaller.nsi"
-        dest = Path(self.workDir()) / "chaeum-unicode-installer.nsi"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        text = template.read_text(encoding="utf-8").lstrip("\ufeff")
-        dest.write_text("\ufeffUnicode true\n" + text, encoding="utf-8")
-        self.defines["nsis_include"] = f"!addincludedir {template.parent}"
-        return dest
+        craftNsis = Path(nsisModule.__file__).parent / "Nsis"
+        here = Path(self.blueprintDir())
+        self.defines["nsis_include"] = f"!addincludedir {here}\n!addincludedir {craftNsis}"
+        self.defines["chaeum_side_bitmap"] = str(here / "chaeum-installer-side.bmp")
+        self.defines["chaeum_header_bitmap"] = str(here / "chaeum-installer-header.bmp")
+        return here / "chaeum-installer.nsi"
 
     def _appxKoreanResource(self):
         # Modified by ChaeumAI Inc. on 2026-11-18: Craft's AppxManifest.xml declares only en-us.
@@ -238,6 +238,8 @@ class Package(CMakePackageBase):
         exePath = Path(f"{self.applicationExecutable}{CraftCore.compiler.platform.executableSuffix}")
         if isinstance(self, (NullsoftInstallerPackager, AppxPackager)):
             exePath = Path(f"bin/{exePath}")
+        if isinstance(self, NullsoftInstallerPackager):
+            self.defines["chaeum_exe"] = str(exePath).replace("/", "\\")
         self.defines["shortcuts"] = [
             {
                 "name": self.subinfo.displayName,
