@@ -122,10 +122,13 @@ FunctionEnd
 @{readme}
 ;!insertmacro MUI_FINISHPAGE_SHOWREADME
 
-!define MULTIUSER_INSTALLMODEPAGE_TEXT_TOP "채움드라이브를 누가 쓸지 고르십시오."
+!define MULTIUSER_INSTALLMODEPAGE_TEXT_TOP "채움드라이브를 누가 쓸지 고르세요."
 !define MULTIUSER_INSTALLMODEPAGE_TEXT_ALLUSERS "이 PC의 모든 사용자 (관리자 권한 필요)"
 !define MULTIUSER_INSTALLMODEPAGE_TEXT_CURRENTUSER "나만 쓰기"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
+!define MUI_PAGE_HEADER_TEXT "설치 위치"
+!define MUI_PAGE_HEADER_SUBTEXT "채움드라이브를 설치할 폴더입니다."
+!define MUI_DIRECTORYPAGE_TEXT_TOP "보통은 그대로 두고 「다음」을 누르면 됩니다. 다른 곳에 설치하려면 「찾아보기」를 누르세요."
 !insertmacro MUI_PAGE_DIRECTORY
 !define MUI_PAGE_CUSTOMFUNCTION_PRE ChaeumSkipStartMenu
 !insertmacro MUI_PAGE_STARTMENU Application $StartMenuFolder
@@ -135,8 +138,18 @@ FunctionEnd
 @{sections_page}
 ;!insertmacro MUI_PAGE_COMPONENTS
 
+!define MUI_PAGE_HEADER_TEXT "설치 중"
+!define MUI_PAGE_HEADER_SUBTEXT "잠시 기다리세요."
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_PAGE_HEADER_TEXT "채움드라이브 제거"
+!define MUI_PAGE_HEADER_SUBTEXT "PC에서 채움드라이브를 지웁니다."
 !insertmacro MUI_UNPAGE_CONFIRM
+!define MUI_PAGE_HEADER_TEXT "제거 중"
+!define MUI_PAGE_HEADER_SUBTEXT "잠시 기다리세요."
+!define MUI_INSTFILESPAGE_FINISHHEADER_TEXT "제거를 마쳤습니다"
+!define MUI_INSTFILESPAGE_FINISHHEADER_SUBTEXT "PC 폴더의 파일은 그대로 있습니다."
+!define MUI_INSTFILESPAGE_ABORTHEADER_TEXT "제거를 멈췄습니다"
+!define MUI_INSTFILESPAGE_ABORTHEADER_SUBTEXT "채움드라이브 일부가 남아 있을 수 있습니다."
 !insertmacro MUI_UNPAGE_INSTFILES
 !define MUI_FINISHPAGE_TITLE "설치를 마쳤습니다"
 !define MUI_FINISHPAGE_TEXT "채움드라이브를 열어 계정을 연결하면 파일 동기화가 시작됩니다."
@@ -233,7 +246,7 @@ SectionEnd
 ; Uninstaller
 ; All section names prefixed by "Un" will be in the uninstaller
 
-UninstallText "@{productname}을(를) 이 PC에서 제거합니다. PC 폴더의 파일은 지우지 않습니다."
+UninstallText "@{productname}를 이 PC에서 제거합니다. PC 폴더의 파일은 지우지 않습니다."
 
 Section "Uninstall"
 !insertmacro EndProcessWithDialog
