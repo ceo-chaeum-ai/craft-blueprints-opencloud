@@ -6,6 +6,8 @@ class subinfo(info.infoclass):
         # Modified by ChaeumAI Inc. on 2026-11-16: blueprints come from the Chaeum Drive fork.
         for ver in ["main", "chaeum"]:
             self.svnTargets[ver] = "[git]https://github.com/ceo-chaeum-ai/craft-blueprints-opencloud.git|chaeum|"
+        # 2026-11-18: branch for testing the new Chaeum Drive UI and installer
+        self.svnTargets["ui-revamp"] = "[git]https://github.com/ceo-chaeum-ai/craft-blueprints-opencloud.git|ui-revamp|"
         self.defaultTarget = "chaeum"
 
     def setDependencies(self):
