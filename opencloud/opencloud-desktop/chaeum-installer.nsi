@@ -253,6 +253,7 @@ Section "Uninstall"
 
 DeleteRegKey SHCTX "${uninstkey}"
 DeleteRegKey SHCTX "${regkey}"
+DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "ChaeumDrive"
 
 !insertmacro MUI_STARTMENU_GETFOLDER Application $StartMenuFolder
 RMDir /r "$SMPROGRAMS\$StartMenuFolder"
