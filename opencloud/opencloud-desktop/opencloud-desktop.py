@@ -21,11 +21,11 @@ class subinfo(info.infoclass):
         self.options.dynamic.registerOption("buildBeta", False)
 
     def setTargets(self):
-        # Modified by ChaeumAI Inc. on 2026-11-16: Chaeum Drive build (name, company, theme).
+        # Modified by ChaeumAI Inc. on 2026-11-16 and 2026-11-21: Chaeum Drive build (name, company, theme, description).
         self.svnTargets["main"] = "https://github.com/ceo-chaeum-ai/desktop.git|chaeum"
         self.defaultTarget = "main"
 
-        self.description = "Chaeum Drive (based on OpenCloud Desktop)"
+        self.description = "채움드라이브"
         self.displayName = "채움드라이브"
         self.webpage = "https://github.com/ceo-chaeum-ai/desktop"
 
