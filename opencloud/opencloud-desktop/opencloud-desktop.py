@@ -323,4 +323,17 @@ class Package(CMakePackageBase):
         theme = "beta.json" if self.subinfo.options.dynamic.buildBeta else "chaeum.json"
         if not utils.system(["python3", self.sourceDir() / "admin/theme_patcher.py", self.archiveDir(), self.sourceDir() / theme]):
             return False
+        # Modified by ChaeumAI Inc. on 2026-11-21: ship the GPL text, the list of our changes and the
+        # third-party license notices with every package (GPL-2.0 section 1, LGPL/MIT/BSD notices).
+        licenses = Path(self.archiveDir()) / "licenses"
+        licenses.mkdir(parents=True, exist_ok=True)
+        src = Path(self.sourceDir())
+        for name in ["COPYING", "CHAEUM-CHANGES.md"]:
+            if not utils.copyFile(src / name, licenses / name, linkOnly=False):
+                return False
+        notices = src / "admin/chaeum/licenses"
+        if notices.is_dir():
+            for f in notices.iterdir():
+                if f.is_file() and not utils.copyFile(f, licenses / f.name, linkOnly=False):
+                    return False
         return super().preArchive()
